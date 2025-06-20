@@ -20,7 +20,9 @@ import { UpdateUserInput } from 'src/domain/useCases/dto/updateUser.useCase.inpu
 import { UpdateUserUseCase } from 'src/domain/useCases/updateUser.useCase';
 import { FindAllUsersUseCase } from 'src/domain/useCases/findAllUsers.useCase';
 import { RolesGuard } from 'src/infra/auth/roles.guard';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('User')
 @Controller('user')
 export class UserContoller {
   constructor(
@@ -28,7 +30,7 @@ export class UserContoller {
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly findAllUsersUseCase: FindAllUsersUseCase,
   ) {}
-
+  @ApiOperation({ summary: 'Retorna os dados do usuário' })
   @UseGuards(JwtAuthGuard)
   @Roles('admin')
   @Get('me')
@@ -46,7 +48,7 @@ export class UserContoller {
       createdAt: user.createdAt,
     };
   }
-
+  @ApiOperation({ summary: 'Realiza todos os usuários' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Get()
@@ -73,7 +75,7 @@ export class UserContoller {
       createdAt: user.createdAt,
     }));
   }
-
+  @ApiOperation({ summary: 'Edita o usuário com id na URL' })
   @UseGuards(JwtAuthGuard) // Somente esse aqui
   @Put(':id')
   async update(
@@ -127,7 +129,7 @@ export class UserContoller {
       updatedAt: updatedUser.updatedAt,
     };
   }
-
+  @ApiOperation({ summary: 'Deleta o usuário com id na URL' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Delete(':id')
@@ -135,6 +137,8 @@ export class UserContoller {
     await this.userRepository.delete(id);
     return { message: 'Usuário deletado com sucesso' };
   }
+
+  @ApiOperation({ summary: 'Retorna os usuários inativos' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Get('inactives')
