@@ -7,6 +7,7 @@ export class User {
     public email: string,
     public password: string,
     public role: UserRole = 'user',
+    public lastLogin: Date,
     public readonly createdAt: Date,
     public updatedAt: Date,
   ) {}
