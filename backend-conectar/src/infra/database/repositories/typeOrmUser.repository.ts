@@ -53,7 +53,6 @@ export class TypeOrmUserRepository implements UserRepository {
 
   async findAll(): Promise<User[]> {
     const userEntities = await this.repo.find();
-    console.log('[DEBUG] Users encontrados no banco:', userEntities);
 
     return userEntities.map(
       (userEntity) =>

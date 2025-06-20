@@ -12,6 +12,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from 'src/interfaces/http/controllers/auth/auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UpdateUserUseCase } from 'src/domain/useCases/updateUser.useCase';
 
 @Module({
   imports: [
@@ -42,6 +43,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       provide: LoginUseCase,
       useFactory: (repo: UserRepository) => new LoginUseCase(repo),
       inject: [UserRepository],
+    },
+    {
+      provide: UpdateUserUseCase,
+      useFactory: (repo: UserRepository, bcrypt: BcryptService) =>
+        new UpdateUserUseCase(repo, bcrypt),
+      inject: [UserRepository, BcryptService],
     },
   ],
 
