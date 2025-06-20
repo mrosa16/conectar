@@ -19,6 +19,7 @@ export class CreateUserUseCase {
       input.role || 'user',
       new Date(),
       new Date(),
+      new Date(),
     );
 
     return this.userRepository.create(user);

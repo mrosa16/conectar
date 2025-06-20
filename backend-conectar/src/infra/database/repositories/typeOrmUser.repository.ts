@@ -30,6 +30,7 @@ export class TypeOrmUserRepository implements UserRepository {
       userEntity.email,
       userEntity.password,
       userEntity.role,
+      userEntity.lastLogin,
       userEntity.createdAt,
       userEntity.updatedAt,
     );
@@ -46,6 +47,7 @@ export class TypeOrmUserRepository implements UserRepository {
       userEntity.email,
       userEntity.password,
       userEntity.role,
+      userEntity.lastLogin,
       userEntity.createdAt,
       userEntity.updatedAt,
     );
@@ -62,6 +64,7 @@ export class TypeOrmUserRepository implements UserRepository {
           userEntity.email,
           userEntity.password,
           userEntity.role,
+          userEntity.lastLogin,
           userEntity.createdAt,
           userEntity.updatedAt,
         ),
@@ -80,7 +83,7 @@ export class TypeOrmUserRepository implements UserRepository {
   async findInactives(since: Date): Promise<User[]> {
     const userEntities = await this.repo
       .createQueryBuilder('user')
-      .where('user.updatedAt < :since', { since })
+      .where('user.lastLogin < :since', { since })
       .getMany();
 
     return userEntities.map(
@@ -91,6 +94,7 @@ export class TypeOrmUserRepository implements UserRepository {
           userEntity.email,
           userEntity.password,
           userEntity.role,
+          userEntity.lastLogin,
           userEntity.createdAt,
           userEntity.updatedAt,
         ),

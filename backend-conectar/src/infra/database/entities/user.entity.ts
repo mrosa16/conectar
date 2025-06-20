@@ -23,6 +23,9 @@ export class UserEntity {
   @Column({ default: true })
   role: 'admin' | 'user';
 
+  @Column({ type: 'timestamp', nullable: true })
+  lastLogin: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 

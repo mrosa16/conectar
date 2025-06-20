@@ -123,7 +123,7 @@ export class UserContoller {
     await this.userRepository.delete(id);
     return { message: 'Usuário deletado com sucesso' };
   }
-
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Get('inactives')
   async findInactives() {
