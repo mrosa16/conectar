@@ -62,6 +62,7 @@ export class UserContoller {
     }));
   }
 
+  @UseGuards(JwtAuthGuard) // Somente esse aqui
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -71,10 +72,26 @@ export class UserContoller {
     const isOwner = req.user.sub === id;
     const isAdmin = req.user.role === 'admin';
 
-    if (!isAdmin && !isOwner) {
+    if (!isOwner && !isAdmin) {
       throw new ForbiddenException(
-        'Apenas Administradores pode alterar seus dados',
+        'Apenas administradores podem alterar dados de outros usuários.',
       );
+    }
+
+    if (!isAdmin) {
+      if (body.role != null) {
+        delete body.role;
+        throw new ForbiddenException(
+          'Apenas administradores podem alterar role',
+        );
+      }
+
+      if (body.email != null) {
+        delete body.email;
+        throw new ForbiddenException(
+          'Apenas administradores podem alterar email',
+        );
+      }
     }
 
     const input: UpdateUserInput = {
@@ -83,11 +100,14 @@ export class UserContoller {
       targetUserId: id,
       name: body.name,
       password: body.password,
+      email: body.email,
+      role: body.role,
     };
-
+    console.log(input);
     const updatedUser = await this.updateUserUseCase.execute(input);
 
     return {
+      message: 'Usuário atualizado com sucesso',
       id: updatedUser.id,
       name: updatedUser.name,
       email: updatedUser.email,
@@ -96,6 +116,7 @@ export class UserContoller {
     };
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Delete(':id')
   async delete(@Param('id') id: string) {

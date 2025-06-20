@@ -1,5 +1,5 @@
 // src/infra/http/user/user.module.ts
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CreateUserUseCase } from 'src/domain/useCases/createUser.useCase';
@@ -13,21 +13,50 @@ import { TypeOrmUserRepository } from 'src/infra/database/repositories/typeOrmUs
 
 import { UserRepository } from 'src/domain/repositories/user.repository';
 import { UserContoller } from 'src/interfaces/http/controllers/user/user.controller';
+import { BcryptService } from 'src/infra/auth/bcrypt.service';
+import { AuthModule } from 'src/infra/auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity])],
+  imports: [
+    TypeOrmModule.forFeature([UserEntity]),
+    forwardRef(() => AuthModule),
+  ],
   controllers: [UserContoller],
   providers: [
+    BcryptService,
     {
       provide: UserRepository,
       useClass: TypeOrmUserRepository,
     },
-    CreateUserUseCase,
-    FindAllUsersUseCase,
-    UpdateUserUseCase,
-    DeleteUserUseCase,
-    FindaInactiveUseCase,
+    {
+      provide: CreateUserUseCase,
+      useFactory: (repo: UserRepository) => new CreateUserUseCase(repo),
+      inject: [UserRepository],
+    },
+    {
+      provide: UpdateUserUseCase,
+      useFactory: (repo: UserRepository, bcrypt: BcryptService) =>
+        new UpdateUserUseCase(repo, bcrypt),
+      inject: [UserRepository, BcryptService],
+    },
+
+    {
+      provide: DeleteUserUseCase,
+      useFactory: (repo: UserRepository) => new DeleteUserUseCase(repo),
+      inject: [UserRepository],
+    },
+    {
+      provide: FindAllUsersUseCase,
+      useFactory: (repo: UserRepository) => new FindAllUsersUseCase(repo),
+      inject: [UserRepository],
+    },
+    {
+      provide: FindaInactiveUseCase,
+      useFactory: (repo: UserRepository) => new FindaInactiveUseCase(repo),
+      inject: [UserRepository],
+    },
   ],
-  exports: [UserRepository],
+
+  exports: [UserRepository, BcryptService],
 })
 export class UserModule {}

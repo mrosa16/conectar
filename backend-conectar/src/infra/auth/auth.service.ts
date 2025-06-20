@@ -41,9 +41,6 @@ export class AuthService {
 
     const token: string = this.jwtService.sign(payload) as string;
 
-    console.log('[DEBUG] Token gerado:', token);
-    console.log('[DEBUG] JWT_SECRET usado no sign:', process.env.JWT_SECRET);
-
     return {
       message: 'Login realizado com sucesso',
       token,
