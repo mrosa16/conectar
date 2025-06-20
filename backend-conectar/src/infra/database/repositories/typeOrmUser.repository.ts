@@ -6,6 +6,7 @@ import { UserRepository } from 'src/domain/repositories/user.repository';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../entities/user.entity';
+import { FindUsersFilter } from 'src/domain/useCases/dto/findUserFilter.useCase.filter';
 
 @Injectable()
 export class TypeOrmUserRepository implements UserRepository {
@@ -53,8 +54,21 @@ export class TypeOrmUserRepository implements UserRepository {
     );
   }
 
-  async findAll(): Promise<User[]> {
-    const userEntities = await this.repo.find();
+  async findAll(filter?: FindUsersFilter): Promise<User[]> {
+    const whereClause: any = {};
+    if (filter?.role) {
+      whereClause.role = filter.role;
+    }
+
+    const orderClause: any = {};
+    if (filter?.sortBy) {
+      orderClause[filter.sortBy] = filter.order ?? 'asc';
+    }
+
+    const userEntities = await this.repo.find({
+      where: whereClause,
+      order: orderClause,
+    });
 
     return userEntities.map(
       (userEntity) =>
