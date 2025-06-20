@@ -7,6 +7,7 @@ import {
   NotFoundException,
   Param,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { JwtAuthGuard } from 'src/infra/auth/jwt.guard';
 import { UpdateUserRequestDto } from '../dtos/updateUser.dto';
 import { UpdateUserInput } from 'src/domain/useCases/dto/updateUser.useCase.input';
 import { UpdateUserUseCase } from 'src/domain/useCases/updateUser.useCase';
+import { FindAllUsersUseCase } from 'src/domain/useCases/findAllUsers.useCase';
 import { RolesGuard } from 'src/infra/auth/roles.guard';
 
 @Controller('user')
@@ -24,6 +26,7 @@ export class UserContoller {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly updateUserUseCase: UpdateUserUseCase,
+    private readonly findAllUsersUseCase: FindAllUsersUseCase,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -47,8 +50,17 @@ export class UserContoller {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Get()
-  async findAll() {
-    const users = await this.userRepository.findAll();
+  async findAll(
+    @Query('role') role?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('order') order?: 'asc' | 'desc',
+  ) {
+    const users = await this.findAllUsersUseCase.execute({
+      role,
+      sortBy: sortBy === 'name' || sortBy === 'createdAt' ? sortBy : undefined,
+      order,
+    });
+    //const users = await this.userRepository.findAll();
     if (!users || users.length === 0) {
       throw new NotFoundException('No users found');
     }
