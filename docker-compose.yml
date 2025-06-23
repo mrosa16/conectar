@@ -18,7 +18,7 @@ services:
       - /app/node_modules
     command: npm run start:prod
 
-  db:
+ db:
     image: postgres:15
     container_name: conectar-db
     restart: always
